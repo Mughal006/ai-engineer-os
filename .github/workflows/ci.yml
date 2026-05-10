@@ -72,6 +72,8 @@ jobs:
       - name: Build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci-placeholder
+          # Validly-formatted Clerk placeholder so the build/prerender pass
+          # passes Clerk's key-format check. Decodes to "clerk.example.com$".
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
           CLERK_SECRET_KEY: sk_test_ci-placeholder
         run: pnpm build
