@@ -67,3 +67,83 @@ class RoadmapOut(BaseModel):
     generated_plan: RoadmapPlan
     created_at: datetime
     updated_at: datetime
+
+
+class CurriculumTopicOut(BaseModel):
+    slug: str
+    title: str
+    phase: int
+    phase_title: str
+
+
+class LessonOut(BaseModel):
+    slug: str
+    title: str
+    phase: int
+    phase_title: str
+    beginner_explanation: str
+    advanced_explanation: str
+    worked_example: str
+    key_points: list[str]
+    estimated_minutes: int
+
+
+class QuizQuestionOut(BaseModel):
+    index: int
+    prompt: str
+    options: list[str]
+
+
+class QuizOut(BaseModel):
+    slug: str
+    title: str
+    phase: int
+    phase_title: str
+    passing_score: float
+    questions: list[QuizQuestionOut]
+
+
+class QuizSubmitIn(BaseModel):
+    answers: list[int] = Field(min_length=1, max_length=20)
+
+
+class QuizQuestionResult(BaseModel):
+    index: int
+    correct: bool
+    correct_index: int
+    explanation: str
+
+
+class QuizResult(BaseModel):
+    slug: str
+    score: float
+    passed: bool
+    passing_score: float
+    mastery_score: float
+    attempts: int
+    per_question: list[QuizQuestionResult]
+
+
+class ProgressEntry(BaseModel):
+    slug: str
+    title: str
+    phase: int
+    phase_title: str
+    completed: bool
+    mastery_score: float
+    attempts: int
+    last_reviewed: datetime | None
+
+
+class ProgressOut(BaseModel):
+    entries: list[ProgressEntry]
+    total_topics: int
+    completed_topics: int
+    completion_percentage: float
+
+
+class LessonCompleteOut(BaseModel):
+    slug: str
+    completed: bool
+    mastery_score: float
+    attempts: int

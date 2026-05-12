@@ -94,3 +94,107 @@ export async function createRoadmap(payload: SkillAssessment): Promise<Roadmap> 
     body: JSON.stringify(payload)
   });
 }
+
+export interface CurriculumTopic {
+  slug: string;
+  title: string;
+  phase: number;
+  phase_title: string;
+}
+
+export interface Lesson {
+  slug: string;
+  title: string;
+  phase: number;
+  phase_title: string;
+  beginner_explanation: string;
+  advanced_explanation: string;
+  worked_example: string;
+  key_points: string[];
+  estimated_minutes: number;
+}
+
+export interface QuizQuestion {
+  index: number;
+  prompt: string;
+  options: string[];
+}
+
+export interface Quiz {
+  slug: string;
+  title: string;
+  phase: number;
+  phase_title: string;
+  passing_score: number;
+  questions: QuizQuestion[];
+}
+
+export interface QuizQuestionResult {
+  index: number;
+  correct: boolean;
+  correct_index: number;
+  explanation: string;
+}
+
+export interface QuizResult {
+  slug: string;
+  score: number;
+  passed: boolean;
+  passing_score: number;
+  mastery_score: number;
+  attempts: number;
+  per_question: QuizQuestionResult[];
+}
+
+export interface ProgressEntry {
+  slug: string;
+  title: string;
+  phase: number;
+  phase_title: string;
+  completed: boolean;
+  mastery_score: number;
+  attempts: number;
+  last_reviewed: string | null;
+}
+
+export interface Progress {
+  entries: ProgressEntry[];
+  total_topics: number;
+  completed_topics: number;
+  completion_percentage: number;
+}
+
+export async function getLesson(slug: string): Promise<Lesson | null> {
+  try {
+    return await request<Lesson>(`/topics/${encodeURIComponent(slug)}/lesson`);
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith("API 404")) return null;
+    throw err;
+  }
+}
+
+export async function getQuiz(slug: string): Promise<Quiz | null> {
+  try {
+    return await request<Quiz>(`/quizzes/${encodeURIComponent(slug)}`);
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith("API 404")) return null;
+    throw err;
+  }
+}
+
+export async function submitQuiz(slug: string, answers: number[]): Promise<QuizResult> {
+  return request<QuizResult>(`/quizzes/${encodeURIComponent(slug)}/submit`, {
+    method: "POST",
+    body: JSON.stringify({ answers })
+  });
+}
+
+export async function markLessonComplete(
+  slug: string
+): Promise<{ slug: string; completed: boolean; mastery_score: number; attempts: number }> {
+  return request(`/topics/${encodeURIComponent(slug)}/complete`, { method: "POST" });
+}
+
+export async function getMyProgress(): Promise<Progress> {
+  return request<Progress>("/progress/me");
+}
