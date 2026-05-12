@@ -1,4 +1,24 @@
+import Link from "next/link";
 import type { Roadmap, RoadmapTask } from "@/lib/api";
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function topicSlug(phase: number, topic: string, seenBaseSlugs: Set<string>): string {
+  // Mirror app/services/curriculum.py: duplicate base slugs across phases are
+  // disambiguated with -p{phase}. Caller maintains seenBaseSlugs across the
+  // whole roadmap render so we get the same slugs the backend computes.
+  const base = slugify(topic);
+  if (!seenBaseSlugs.has(base)) {
+    seenBaseSlugs.add(base);
+    return base;
+  }
+  return `${base}-p${phase}`;
+}
 
 const KIND_BADGE: Record<string, string> = {
   lesson: "bg-blue-100 text-blue-900",
@@ -23,6 +43,7 @@ export function RoadmapView({ roadmap }: { roadmap: Roadmap }) {
   const plan = roadmap.generated_plan;
   const days = tasksByDay(plan.daily_tasks);
   const sortedDays = Array.from(days.keys()).sort((a, b) => a - b);
+  const seenBaseSlugs = new Set<string>();
 
   return (
     <div className="space-y-10">
@@ -53,14 +74,19 @@ export function RoadmapView({ roadmap }: { roadmap: Roadmap }) {
                 </span>
               </div>
               <ul className="mt-3 flex flex-wrap gap-2">
-                {phase.topics.map((t) => (
-                  <li
-                    key={t}
-                    className="rounded-full border border-border px-2.5 py-0.5 text-xs"
-                  >
-                    {t}
-                  </li>
-                ))}
+                {phase.topics.map((t) => {
+                  const slug = topicSlug(phase.phase, t, seenBaseSlugs);
+                  return (
+                    <li key={t}>
+                      <Link
+                        href={`/learn/${slug}`}
+                        className="inline-block rounded-full border border-border px-2.5 py-0.5 text-xs hover:bg-accent"
+                      >
+                        {t}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
               {phase.project ? (
                 <p className="mt-3 text-sm">
