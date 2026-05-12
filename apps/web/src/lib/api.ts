@@ -3,12 +3,22 @@
  * Forwards the Clerk session token (when configured) to the backend so that
  * `/users/me` and `/roadmaps/*` resolve to the correct user. When Clerk is
  * unconfigured the backend falls back to a deterministic dev user.
+ *
+ * Demo mode (NEXT_PUBLIC_DEMO_MODE=true) bypasses Clerk and instead forwards
+ * a per-browser `X-Demo-User-Id` header derived from a cookie set by the
+ * middleware, so each visitor still gets their own user/roadmap row.
  */
 import { auth } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 async function authHeaders(): Promise<HeadersInit> {
+  if (DEMO_MODE) {
+    const id = (await cookies()).get("demo-user-id")?.value;
+    return id ? { "X-Demo-User-Id": id } : {};
+  }
   try {
     const { getToken } = await auth();
     const token = await getToken();

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
 const FEATURES = [
   { title: "Adaptive roadmap", body: "A personalized 12-week plan that adjusts as you grow." },
   { title: "Mastery-based progression", body: "Topics unlock only when you've earned them." },
@@ -9,6 +11,38 @@ const FEATURES = [
   { title: "Productivity analytics", body: "Track focus, distraction, and learning efficiency." },
   { title: "Anti-cheat assessments", body: "Browser monitoring keeps progress real." }
 ];
+
+function CtaButtons() {
+  if (DEMO_MODE) {
+    return (
+      <Link
+        href="/onboarding"
+        className="rounded-md bg-primary px-5 py-2.5 text-primary-foreground hover:opacity-90"
+      >
+        Get started
+      </Link>
+    );
+  }
+  return (
+    <>
+      <SignedOut>
+        <SignInButton mode="modal">
+          <button className="rounded-md bg-primary px-5 py-2.5 text-primary-foreground hover:opacity-90">
+            Get started
+          </button>
+        </SignInButton>
+      </SignedOut>
+      <SignedIn>
+        <Link
+          href="/dashboard"
+          className="rounded-md bg-primary px-5 py-2.5 text-primary-foreground hover:opacity-90"
+        >
+          Go to dashboard
+        </Link>
+      </SignedIn>
+    </>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -22,21 +56,7 @@ export default function HomePage() {
           interviewer, and coding coach in one product.
         </p>
         <div className="flex justify-center gap-3">
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button className="rounded-md bg-primary px-5 py-2.5 text-primary-foreground hover:opacity-90">
-                Get started
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <Link
-              href="/dashboard"
-              className="rounded-md bg-primary px-5 py-2.5 text-primary-foreground hover:opacity-90"
-            >
-              Go to dashboard
-            </Link>
-          </SignedIn>
+          <CtaButtons />
           <Link
             href="/roadmap"
             className="rounded-md border border-border px-5 py-2.5 hover:bg-accent"

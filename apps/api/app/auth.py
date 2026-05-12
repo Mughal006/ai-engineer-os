@@ -60,11 +60,21 @@ def _ensure_user(
 
 def get_current_user(
     authorization: str | None = Header(default=None),
+    x_demo_user_id: str | None = Header(default=None, alias="X-Demo-User-Id"),
     settings: Settings = Depends(get_settings),
     db: Session = Depends(get_db),
 ) -> User:
     """Resolve the authenticated user, creating a row on first contact."""
     if not settings.auth_enabled:
+        if x_demo_user_id:
+            demo_id = x_demo_user_id.strip()[:64]
+            if demo_id:
+                return _ensure_user(
+                    db,
+                    clerk_id=f"demo-{demo_id}",
+                    email=f"{demo_id}@demo.local",
+                    name="Demo User",
+                )
         return _ensure_user(db, clerk_id=DEV_CLERK_ID, email=DEV_EMAIL, name="Dev User")
 
     if not authorization or not authorization.lower().startswith("bearer "):

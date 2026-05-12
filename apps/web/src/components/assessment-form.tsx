@@ -4,7 +4,36 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import type { SkillLevel } from "@/lib/api";
-import { generateRoadmap } from "./assessment-action";
+
+type GenerateResult = { ok: true } | { ok: false; error: string };
+
+async function generateRoadmap(payload: {
+  skill_level: SkillLevel;
+  target_role: string;
+  daily_hours: number;
+  interests: string[];
+}): Promise<GenerateResult> {
+  try {
+    // Build an absolute URL from `location.origin` instead of letting fetch
+    // resolve against `document.baseURI`, which can include basic-auth credentials
+    // when the page was served behind a credentialed tunnel URL — that throws
+    // "Request cannot be constructed from a URL that includes credentials".
+    const url =
+      typeof window !== "undefined"
+        ? new URL("/api/onboarding", window.location.origin).toString()
+        : "/api/onboarding";
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = (await res.json().catch(() => ({}))) as GenerateResult;
+    if (!res.ok) return { ok: false, error: ("error" in data && data.error) || `HTTP ${res.status}` };
+    return data;
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
 
 const LEVELS: { value: SkillLevel; label: string; helper: string }[] = [
   { value: "beginner", label: "Beginner", helper: "New to coding or just starting Python." },
