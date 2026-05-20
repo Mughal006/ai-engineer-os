@@ -21,6 +21,19 @@ class Settings(BaseSettings):
         description="Clerk JWT issuer URL, e.g. https://your-app.clerk.accounts.dev",
     )
     openai_api_key: str = Field(default="", description="Optional. Stub used when empty.")
+    llm_provider: str = Field(
+        default="ollama",
+        description="LLM provider: 'ollama' (local) or 'stub' (deterministic, used in tests).",
+    )
+    ollama_base_url: str = Field(
+        default="http://localhost:11434",
+        description="Base URL for the local Ollama API.",
+    )
+    llm_model: str = Field(
+        default="llama3.2:3b",
+        description="Default chat model. Must be pulled on the Ollama host.",
+    )
+    llm_timeout_seconds: float = Field(default=120.0)
     cors_origins: str = Field(
         default="http://localhost:3000",
         description="Comma-separated list of allowed origins.",

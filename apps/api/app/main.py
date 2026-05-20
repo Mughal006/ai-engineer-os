@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
 from app.config import get_settings
-from app.routers import progress, quizzes, roadmaps, topics, users
+from app.routers import interviews, progress, quizzes, roadmaps, topics, users
 
 
 def create_app() -> FastAPI:
@@ -35,6 +35,7 @@ def create_app() -> FastAPI:
     app.include_router(topics.router)
     app.include_router(quizzes.router)
     app.include_router(progress.router)
+    app.include_router(interviews.router)
 
     return app
 
