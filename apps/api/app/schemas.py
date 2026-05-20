@@ -147,3 +147,50 @@ class LessonCompleteOut(BaseModel):
     completed: bool
     mastery_score: float
     attempts: int
+
+
+class InterviewStartIn(BaseModel):
+    slug: str = Field(min_length=1, max_length=120)
+
+
+class InterviewAnswerIn(BaseModel):
+    answer: str = Field(min_length=1, max_length=4000)
+
+
+class InterviewTurnOut(BaseModel):
+    role: Literal["assistant", "user"]
+    kind: Literal["question", "answer", "feedback", "final"]
+    content: str
+    index: int
+    score: float | None = None
+
+
+class InterviewOut(BaseModel):
+    id: uuid.UUID
+    slug: str
+    title: str
+    phase: int
+    phase_title: str
+    transcript: list[InterviewTurnOut]
+    question_index: int
+    total_questions: int
+    finished: bool
+    score: float | None
+    ai_feedback: str | None
+    passing_score: float
+    created_at: datetime
+
+
+class InterviewListEntry(BaseModel):
+    id: uuid.UUID
+    slug: str
+    title: str
+    phase: int
+    phase_title: str
+    finished: bool
+    score: float | None
+    created_at: datetime
+
+
+class InterviewListOut(BaseModel):
+    entries: list[InterviewListEntry]

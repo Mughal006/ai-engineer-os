@@ -198,3 +198,69 @@ export async function markLessonComplete(
 export async function getMyProgress(): Promise<Progress> {
   return request<Progress>("/progress/me");
 }
+
+export interface InterviewTurn {
+  role: "assistant" | "user";
+  kind: "question" | "answer" | "feedback" | "final";
+  content: string;
+  index: number;
+  score?: number | null;
+}
+
+export interface Interview {
+  id: string;
+  slug: string;
+  title: string;
+  phase: number;
+  phase_title: string;
+  transcript: InterviewTurn[];
+  question_index: number;
+  total_questions: number;
+  finished: boolean;
+  score: number | null;
+  ai_feedback: string | null;
+  passing_score: number;
+  created_at: string;
+}
+
+export interface InterviewListEntry {
+  id: string;
+  slug: string;
+  title: string;
+  phase: number;
+  phase_title: string;
+  finished: boolean;
+  score: number | null;
+  created_at: string;
+}
+
+export async function startInterview(slug: string): Promise<Interview> {
+  return request<Interview>("/interviews/start", {
+    method: "POST",
+    body: JSON.stringify({ slug })
+  });
+}
+
+export async function postInterviewAnswer(
+  interviewId: string,
+  answer: string
+): Promise<Interview> {
+  return request<Interview>(`/interviews/${encodeURIComponent(interviewId)}/answer`, {
+    method: "POST",
+    body: JSON.stringify({ answer })
+  });
+}
+
+export async function getInterview(interviewId: string): Promise<Interview | null> {
+  try {
+    return await request<Interview>(`/interviews/${encodeURIComponent(interviewId)}`);
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith("API 404")) return null;
+    throw err;
+  }
+}
+
+export async function listMyInterviews(): Promise<InterviewListEntry[]> {
+  const res = await request<{ entries: InterviewListEntry[] }>("/interviews/me");
+  return res.entries;
+}

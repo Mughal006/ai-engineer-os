@@ -34,6 +34,12 @@ export default async function LessonPage({ params }: { params: { slug: string } 
           Take the quiz →
         </Link>
         <Link
+          href={`/interview/${lesson.slug}`}
+          className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent"
+        >
+          Mock interview →
+        </Link>
+        <Link
           href="/roadmap"
           className="ml-auto text-sm text-muted-foreground underline-offset-4 hover:underline"
         >
